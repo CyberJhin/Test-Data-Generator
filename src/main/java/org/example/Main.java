@@ -14,11 +14,15 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) {
         Customer customer = TestDataGenerator.builder(Customer.class)
-                .invalidateListItemAtIndex(List.of("addresses", "city", "region"), 0, InvalidDataType.TOO_SHORT) // Первый элемент списка
-                .invalidateListItemAtIndex(List.of("addresses", "street"), 2, InvalidDataType.TOO_LONG)  // Третий элемент списка
-                .withFixedListSize(List.of("addresses"), 4) // Всего будет 4 адреса
-                .invalidate(Arrays.asList("addressesNoneList", "street"), InvalidDataType.TOO_SHORT)  // Указываем невалидное поле
-                .invalidate(Arrays.asList("balance"), InvalidDataType.TOO_LONG) // Указываем невалидное поле), InvalidDataType.TOO_SHORT)  // Указываем невалидное поле
+                // 2) Принудительно ставим локаль для всего объекта
+                .withLocale("ru")
+                // 3) Для конкретного поля — город во втором адресе сделаем на en
+                .setFieldLocale(List.of("addresses", "[1]", "city"), "en")
+                // Добавляем пару невалидных полей
+                .invalidate(List.of("firstName"), InvalidDataType.TOO_SHORT)
+                .invalidateListItemAtIndex(List.of("addresses", "street"), 2, InvalidDataType.CONTAINS_FORBIDDEN_CHARACTERS)
+                // Фиксируем ровно 3 адреса
+                .withFixedListSize(List.of("addresses"), 3)
                 .build();
 
         // Печатаем результат

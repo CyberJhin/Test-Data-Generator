@@ -7,6 +7,7 @@ import javax.validation.constraints.Pattern;
 import java.math.BigDecimal;
 import java.util.List;
 
+@TestDataLocale({"en", "ru"})
 @Data
 public class Customer {
 
