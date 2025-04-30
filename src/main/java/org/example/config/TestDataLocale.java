@@ -1,4 +1,4 @@
-package org.example.DTO;
+package org.example.config;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

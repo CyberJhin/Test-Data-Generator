@@ -2,10 +2,9 @@ package org.example;
 
 import org.example.DTO.Customer;
 
-import org.example.DTO.InvalidDataType;
-import org.example.utils.*;
+import org.example.config.InvalidDataType;
+import org.example.generator.*;
 
-import java.util.Arrays;
 import java.util.List;
 
 
@@ -13,7 +12,7 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        Customer customer = TestDataGenerator.builder(Customer.class)
+        Customer customer = CoreDataGenerator.builder(Customer.class)
                 // 2) Принудительно ставим локаль для всего объекта
                 .withLocale("ru")
                 // 3) Для конкретного поля — город во втором адресе сделаем на en
@@ -23,9 +22,10 @@ public class Main {
                 .invalidateListItemAtIndex(List.of("addresses", "street"), 2, InvalidDataType.CONTAINS_FORBIDDEN_CHARACTERS)
                 // Фиксируем ровно 3 адреса
                 .withFixedListSize(List.of("addresses"), 3)
+                .withRussianPassport(true) // отключаем российский формат
                 .build();
 
         // Печатаем результат
-        System.out.println(TestDataGenerator.toJson(customer));
+        System.out.println(CoreDataGenerator.toJson(customer));
     }
 }

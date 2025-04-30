@@ -1,6 +1,8 @@
 package org.example.DTO;
 
 import lombok.Data;
+import org.example.config.InvalidDataConfig;
+import org.example.config.InvalidDataType;
 
 @Data
 public class City {

@@ -1,6 +1,10 @@
 package org.example.DTO;
 
 import lombok.Data;
+import org.example.config.InvalidDataConfig;
+import org.example.config.InvalidDataType;
+import org.example.config.TestDataLocale;
+import org.example.config.TestListConfig;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.Pattern;
@@ -33,7 +37,7 @@ public class Customer {
     @InvalidDataConfig(
             invalidDataTypes = {}
     )
-    @TestListConfig(minItems = 1, maxItems = 2)
+    @TestListConfig(maxItems = 2)
     private List<Address> addresses;
 
     @InvalidDataConfig(
@@ -52,8 +56,23 @@ public class Customer {
             invalidDataTypes = {InvalidDataType.TOO_SHORT, InvalidDataType.TOO_LONG},
             minLength = 1,
             maxLength = 10000000,
-            required = false,
             tags = {"finance"}
     )
     private BigDecimal balance;
+
+
+    @InvalidDataConfig(
+            invalidDataTypes = {InvalidDataType.TOO_SHORT, InvalidDataType.TOO_LONG},
+            minLength = 1,
+            maxLength = 10000000,
+            tags = {"finance"}
+    )
+    private String passportSeries;
+
+    @InvalidDataConfig(
+            invalidDataTypes = {InvalidDataType.TOO_SHORT, InvalidDataType.TOO_LONG},
+            minLength = 1,
+            maxLength = 10000000
+    )
+    private String passportNumber;
 }

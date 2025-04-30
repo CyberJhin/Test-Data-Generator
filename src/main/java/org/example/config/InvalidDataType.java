@@ -1,4 +1,4 @@
-package org.example.DTO;
+package org.example.config;
 
 public enum InvalidDataType {
     TOO_SHORT,
