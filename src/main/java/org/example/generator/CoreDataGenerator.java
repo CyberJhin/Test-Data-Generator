@@ -178,6 +178,7 @@ public class CoreDataGenerator {
 
                 Object value;
                 if (List.class.equals(type)) {
+                    parentPath.add(field.getName());
                     value = generateListField(
                             field, cfg, listCfg,
                             parentPath,
