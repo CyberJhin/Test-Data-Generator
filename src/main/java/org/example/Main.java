@@ -21,8 +21,9 @@ public class Main {
                 .invalidate(List.of("firstName"), InvalidDataType.TOO_SHORT)
                 .invalidateListItemAtIndex(List.of("addresses", "street"), 2, InvalidDataType.CONTAINS_FORBIDDEN_CHARACTERS)
                 // Фиксируем ровно 3 адреса
-                .withFixedListSize(List.of("addresses"), 3)
-                .withRussianPassport(true) // отключаем российский формат
+                .withFixedListSize(List.of("addresses"), 1)
+                .withNotRussianPassport() // отключаем российский формат
+                .withINNforUL()
                 .build();
 
         // Печатаем результат

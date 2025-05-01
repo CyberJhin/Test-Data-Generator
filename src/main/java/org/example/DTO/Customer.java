@@ -71,5 +71,5 @@ public class Customer {
             minLength = 1,
             maxLength = 10000000
     )
-    private String KPP;
+    private String INN;
 }

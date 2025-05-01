@@ -45,7 +45,8 @@ public class CoreDataGenerator {
         private final Map<List<String>, Locale> fieldLocales = new HashMap<>();
         private boolean onlyRequired = false;
         private final Set<String> requiredTags = new HashSet<>();
-        private boolean useRussianPassport = false;
+        private boolean useRussianPassport = true;
+        private boolean useINNForUL;
 
         public Builder(Class<T> clazz) {
             this.clazz = clazz;
@@ -92,8 +93,17 @@ public class CoreDataGenerator {
             return this;
         }
 
-        public Builder<T> withRussianPassport(boolean flag) {
-            this.useRussianPassport = flag;
+        public Builder<T> withINNforIP() {
+            this.useINNForUL = false;
+            return this;
+        }
+        public Builder<T> withINNforUL() {
+            this.useINNForUL = true;
+            return this;
+        }
+
+        public Builder<T> withNotRussianPassport() {
+            this.useRussianPassport = false;
             return this;
         }
 
@@ -115,7 +125,7 @@ public class CoreDataGenerator {
                     new AddressFieldGenerator(),
                     new AmountFieldGenerator(),
                     new DaysCountFieldGenerator(),
-                    new InnFieldGenerator(),
+                    new InnFieldGenerator(useINNForUL),
                     new KppFieldGenerator(),
                     new PassportSeriesFieldGenerator(useRussianPassport),
                     new PassportNumberFieldGenerator(useRussianPassport),

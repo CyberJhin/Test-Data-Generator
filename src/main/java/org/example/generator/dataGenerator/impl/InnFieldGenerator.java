@@ -6,8 +6,21 @@ import org.example.config.InvalidDataType;
 import org.example.generator.dataGenerator.repository.FieldGenerator;
 
 import java.lang.reflect.Field;
+import java.util.Random;
 
 public class InnFieldGenerator implements FieldGenerator {
+
+    private static final int[] COEF_10 = {2,4,10,3,5,9,4,6,8};
+    private static final int[] COEF_11_1 = {7,2,4,10,3,5,9,4,6,8};       // для первой контрольной цифры 12-значного ИНН
+    private static final int[] COEF_11_2 = {3,7,2,4,10,3,5,9,4,6,8};    // для второй контрольной цифры 12-значного ИНН
+
+    private static final Random random = new Random();
+
+    private final boolean IPorUL;
+
+    public InnFieldGenerator(boolean ipOrUL) {
+        this.IPorUL = ipOrUL;
+    }
     @Override
     public boolean supports(Field field) {
         return field.getName().toLowerCase().contains("inn");
@@ -15,10 +28,57 @@ public class InnFieldGenerator implements FieldGenerator {
 
     @Override
     public Object generateValid(Field field, Faker faker, InvalidDataConfig cfg) {
-        // Российский ИНН: 10 или 12 цифр
-        int length = faker.bool().bool() ? 10 : 12;
-        return faker.number().digits(length);
+        return   IPorUL ? generateInn10() : generateInn12();
     }
+
+    public static String generateInn10() {
+        int[] digits = new int[10];
+        // Генерируем первые 9 цифр случайно
+        for (int i = 0; i < 9; i++) {
+            digits[i] = random.nextInt(10);
+        }
+        // Вычисляем контрольную цифру
+        digits[9] = calculateChecksum(digits, COEF_10);
+        // Формируем строку ИНН
+        StringBuilder inn = new StringBuilder();
+        for (int d : digits) {
+            inn.append(d);
+        }
+        return inn.toString();
+    }
+
+    // Метод генерации 12-значного ИНН
+    public static String generateInn12() {
+        int[] digits = new int[12];
+        // Генерируем первые 10 цифр случайно
+        for (int i = 0; i < 10; i++) {
+            digits[i] = random.nextInt(10);
+        }
+        // Вычисляем первую контрольную цифру (11-я)
+        digits[10] = calculateChecksum(digits, COEF_11_1);
+        // Вычисляем вторую контрольную цифру (12-я)
+        digits[11] = calculateChecksum(digits, COEF_11_2);
+        // Формируем строку ИНН
+        StringBuilder inn = new StringBuilder();
+        for (int d : digits) {
+            inn.append(d);
+        }
+        return inn.toString();
+    }
+
+    // Метод вычисления контрольной цифры с учетом правил
+    private static int calculateChecksum(int[] digits, int[] coef) {
+        int sum = 0;
+        for (int i = 0; i < coef.length; i++) {
+            sum += digits[i] * coef[i];
+        }
+        int remainder = sum % 11;
+        if (remainder == 10) {
+            remainder = 0;
+        }
+        return remainder;
+    }
+
 
     @Override
     public Object generateInvalid(Field field, InvalidDataConfig cfg, InvalidDataType type, Faker faker) {
