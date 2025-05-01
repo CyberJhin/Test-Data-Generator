@@ -14,9 +14,12 @@ public class PassportNumberFieldGenerator implements FieldGenerator {
         this.russianFormat = russianFormat;
     }
 
+
     @Override
     public boolean supports(Field field) {
-        return field.getName().toLowerCase().contains("passport") && field.getName().toLowerCase().contains("number");
+        String fname = field.getName().toLowerCase();
+        String cls = field.getDeclaringClass().getSimpleName().toLowerCase();
+        return (fname.contains("number") && (cls.contains("passport") || fname.contains("passport")));
     }
 
     @Override

@@ -16,8 +16,12 @@ public class PassportSeriesFieldGenerator implements FieldGenerator {
 
     @Override
     public boolean supports(Field field) {
-        return field.getName().toLowerCase().contains("passport") && field.getName().toLowerCase().contains("series");
+        String fname = field.getName().toLowerCase();
+        String cls = field.getDeclaringClass().getSimpleName().toLowerCase();
+        // Подходит, если это nested Passport.series или поле типа passportSeries, russianPassport etc.
+        return (fname.contains("series") && (cls.contains("passport") || fname.contains("passport")));
     }
+
 
     @Override
     public Object generateValid(Field field, Faker faker, InvalidDataConfig cfg) {

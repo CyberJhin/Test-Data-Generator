@@ -16,7 +16,9 @@ public class PassportCodeFieldGenerator implements FieldGenerator {
 
     @Override
     public boolean supports(Field field) {
-        return field.getName().toLowerCase().contains("passport") && field.getName().toLowerCase().contains("code");
+        String fname = field.getName().toLowerCase();
+        String cls = field.getDeclaringClass().getSimpleName().toLowerCase();
+        return (fname.contains("code") && (cls.contains("passport") || fname.contains("passport")));
     }
 
     @Override

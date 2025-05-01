@@ -37,7 +37,7 @@ public class Customer {
     @InvalidDataConfig(
             invalidDataTypes = {}
     )
-    @TestListConfig(maxItems = 2)
+    @TestListConfig(minItems = 1, maxItems = 6)
     private List<Address> addresses;
 
     @InvalidDataConfig(
@@ -60,19 +60,16 @@ public class Customer {
     )
     private BigDecimal balance;
 
-
     @InvalidDataConfig(
-            invalidDataTypes = {InvalidDataType.TOO_SHORT, InvalidDataType.TOO_LONG},
-            minLength = 1,
-            maxLength = 10000000,
-            tags = {"finance"}
+            invalidDataTypes = {}
     )
-    private String passportSeries;
+    private Passport passport;
+
 
     @InvalidDataConfig(
             invalidDataTypes = {InvalidDataType.TOO_SHORT, InvalidDataType.TOO_LONG},
             minLength = 1,
             maxLength = 10000000
     )
-    private String passportNumber;
+    private String KPP;
 }
