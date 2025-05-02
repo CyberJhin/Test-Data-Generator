@@ -1,97 +1,166 @@
 # Test Data Generator
 
 ## Описание проекта
-**Test Data Generator** — это инструмент для генерации тестовых данных. Он поддерживает гибкие стратегии, работу с локалями и настройку форматов данных. Проект идеально подходит для автоматизации тестирования, создания мок-объектов и проверки работы систем с различными форматами данных.
+**Test Data Generator** — это инструмент для генерации тестовых данных. Он поддерживает гибкие стратегии, работу с локалями, а также позволяет настраивать форматы и условия генерации данных. Проект идеально подходит для автоматизации тестирования, создания мок-объектов и проверки систем на устойчивость к невалидным данным.
 
 ## Возможности
 - **Генерация пользовательских данных**:
-    - Поддержка локалей (например, `ru`, `en`).
-    - Настройка фиксированных размеров списков.
-    - Генерация данных с нарушением правил для тестирования на устойчивость.
+    - Поддержка локалей (`ru`, `en`, и др.).
+    - Фиксированный размер списков.
+    - Генерация валидных и невалидных данных по заданным правилам.
 - **Работа с аннотациями**:
-    - Установка локалей на уровне классов через аннотации.
-    - Использование аннотации `@InvalidDataConfig` для настройки правил валидации.
-    - Настройка списков через аннотацию `@TestListConfig`.
-- **Гибкость**:
-    - Поддержка различных стратегий генерации данных через интерфейсы и классы.
-    - Поддержка работы с пользовательскими DTO.
+    - Задание локалей на уровне класса.
+    - Настройка правил валидации через `@InvalidDataConfig`.
+    - Управление размерами коллекций с помощью `@TestListConfig`.
+- **Расширяемость**:
+    - Подключение собственных генераторов через SPI.
+    - Передача глобальных конфигураций в генераторы.
+
+---
 
 ## Компоненты
-1. **CoreDataGenerator**:
-    - Центральный класс для настройки и генерации данных.
-    - Поддерживает настройку стратегий генерации, локалей и форматов данных.
-    - Использует библиотеку `Java Faker` для генерации данных.
-2. **Аннотация `@TestDataLocale`**:
-    - Позволяет задавать локали на уровне классов.
-3. **Аннотация `@InvalidDataConfig`**:
-    - Определяет правила валидации, включая минимальную/максимальную длину, запрещенные символы и обязательность поля.
-4. **Аннотация `@TestListConfig`**:
-    - Настраивает параметры генерации списков, включая их минимальный и максимальный размер.
-5. **Генераторы полей**:
-    - Например, `PassportNumberFieldGenerator`, `DaysCountFieldGenerator`, `NameFieldGenerator` и другие.
 
-## Как работать с аннотациями
-### Пример использования аннотации `@TestDataLocale`:
+### 1. CoreDataGenerator
+- Центральный класс для генерации тестовых данных.
+- Использует `Java Faker` для генерации строк, чисел, имен и пр.
+- Поддерживает тонкую настройку: локали, размеры списков, правила валидации.
+
+### 2. Аннотации
+
+#### `@TestDataLocale`
+Позволяет задать локаль генерации на уровне DTO:
 ```java
-@TestDataLocale({"ru", "en"})
-public class Customer {
-    private String firstName;
-    private String lastName;
-    private List<Address> addresses;
-}
+@TestDataLocale("ru")
+public class Customer { ... }
 ```
 
-### Пример использования аннотации `@InvalidDataConfig`:
+#### `@InvalidDataConfig`
+Определяет ограничения, при нарушении которых можно сгенерировать невалидные данные:
 ```java
 @InvalidDataConfig(
-    invalidDataTypes = {InvalidDataType.TOO_SHORT, InvalidDataType.CONTAINS_FORBIDDEN_CHARACTERS},
-    forbiddenCharacters = "#$%",
-    minLength = 3,
-    maxLength = 50
+  invalidDataTypes = {InvalidDataType.TOO_SHORT},
+  forbiddenCharacters = "!@#",
+  minLength = 3
 )
 private String firstName;
 ```
 
-## Как использовать генераторы
-### Пример кода
+#### `@TestListConfig`
+Позволяет управлять размерами списков при генерации:
+```java
+@TestListConfig(minSize = 1, maxSize = 3)
+private List<Address> addresses;
+```
+
+---
+
+## Пример использования
+
 ```java
 Customer customer = CoreDataGenerator.builder(Customer.class)
-    .withLocale("ru") // Устанавливаем локаль для объекта
-    .setFieldLocale(List.of("addresses", "[1]", "city"), "en") // Локаль для конкретного поля
-    .invalidate(List.of("firstName"), InvalidDataType.TOO_SHORT) // Генерация данных с ошибкой
-    .withFixedListSize(List.of("addresses"), 3) // Фиксируем размер списка
-    .withRussianPassport(true) // Используем российский формат паспорта
+    .withLocale("ru")
+    .setFieldLocale(List.of("addresses", "[1]", "city"), "en")
+    .invalidate(List.of("firstName"), InvalidDataType.TOO_SHORT)
+    .invalidate(List.of("addresses", "*", "street"), InvalidDataType.CONTAINS_FORBIDDEN_CHARACTERS)
+    .withFixedListSize(List.of("addresses"), 2)
+    .withRussianPassport(true)
+    .withInnForUl(false)
     .build();
 
-// Печатаем результат в формате JSON
 System.out.println(CoreDataGenerator.toJson(customer));
 ```
 
-### Пример вывода
-```json
-{
-  "firstName": "И",
-  "lastName": "Иванов",
-  "addresses": [
-    {"city": "Москва", "street": "Ленина"},
-    {"city": "London", "street": "Baker"},
-    {"city": "Казань", "street": "Мира"}
-  ]
+---
+
+## Как добавить собственный генератор
+
+1. **Создайте класс, реализующий `FieldGenerator`:**
+
+```java
+public class CustomFieldGenerator implements FieldGenerator {
+    @Override
+    public boolean supports(Field field) {
+        return field.getName().equalsIgnoreCase("customField");
+    }
+
+    @Override
+    public Object generateValid(Field field, Faker faker, InvalidDataConfig cfg) {
+        return "VALID_VALUE";
+    }
+
+    @Override
+    public Object generateInvalid(Field field, InvalidDataConfig cfg, InvalidDataType type, Faker faker) {
+        return "INVALID";
+    }
 }
 ```
 
-## Как расширять
-1. **Добавление генераторов**:
-    - Реализуйте интерфейс `FieldGenerator`.
-    - Зарегистрируйте новый генератор в `CoreDataGenerator`.
-2. **Добавление новых DTO**:
-    - Создайте класс DTO.
-    - Добавьте аннотацию `@TestDataLocale` для указания локалей (если требуется).
-    - Используйте аннотации `@InvalidDataConfig` для настройки правил валидации.
+2. **(Опционально) Реализуйте интерфейс `ConfigurableGenerator`, если требуется доступ к глобальной конфигурации:**
 
-## Установка и настройка
-### Зависимости
-Добавьте следующие зависимости в ваш `build.gradle`:
+```java
+public class CustomFieldGenerator implements FieldGenerator, ConfigurableGenerator {
+    private boolean myFlag;
+
+    @Override
+    public void configure(GeneratorConfig config) {
+        this.myFlag = config.isUseSomethingSpecial();
+    }
+
+    // остальная реализация...
+}
+```
+Затем добавьте вызов реализованных конфигураторов, он автоматически проставит значения и соберет все генераторы:
+```java 
+       public T build() {
+  // 1) Собираем глобальный конфиг
+  GeneratorConfig ctx = new GeneratorConfig()
+          .setUseRussianPassport(useRussianPassport)
+          .setUseInnForUl(useInnForUl);
+
+  // 2) Загружаем все FieldGenerator через SPI
+  List<FieldGenerator> generators = ServiceLoader
+          .load(FieldGenerator.class)
+          .stream()
+          .map(ServiceLoader.Provider::get)
+          .collect(Collectors.toList());
+
+  // 3) Конфигурируем тех, кому нужно
+  for (FieldGenerator gen : generators) {
+    if (gen instanceof ConfigurableGenerator cg) {
+      cg.configure(ctx);
+    }
+  }
+
+  // 4) Вызываем основной метод генерации, передав список generators
+  return generateFilteredData(
+          clazz, onlyRequired, requiredTags,
+          new ArrayList<>(), new HashSet<>(),
+          invalidPatterns, fixedSizes, fieldLocales,
+          dtoLocale, new HashMap<>(), generators
+  );
+}
+```
+
+3. **Зарегистрируйте генератор через SPI:**
+
+Создайте файл:
+```
+src/main/resources/META-INF/services/org.example.generator.dataGenerator.repository.FieldGenerator
+```
+
+Добавьте в него FQCN вашего генератора:
+```
+org.example.generator.dataGenerator.impl.CustomFieldGenerator
+```
+
+> ⚠️ Важно: каждый класс должен иметь **публичный конструктор без аргументов**.
+
+---
+
+## Установка и сборка
+
+### Зависимости (Gradle)
+
 ```gradle
 dependencies {
     implementation 'com.github.javafaker:javafaker:1.0.2'
@@ -100,21 +169,26 @@ dependencies {
 }
 ```
 
-### Сборка
-Для сборки проекта используйте:
+### Сборка проекта
+
 ```bash
 ./gradlew build
 ```
 
+---
+
 ## Тестирование
-Для запуска тестов:
+
 ```bash
 ./gradlew test
 ```
 
+---
+
 ## Контакты
-Если у вас есть вопросы или предложения, создайте issue в [репозитории](https://github.com/CyberJhin/Test-Data-Generator).
+
+Вопросы, предложения и баги — через [issues](https://github.com/CyberJhin/Test-Data-Generator).
 
 ---
 
-**Test Data Generator** — ваш надежный помощник для автоматизации тестирования!
+**Test Data Generator** — ваш гибкий помощник в генерации тестовых данных.

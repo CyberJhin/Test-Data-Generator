@@ -9,6 +9,9 @@ import javax.validation.constraints.Email;
 import java.lang.reflect.Field;
 
 public class EmailFieldGenerator implements FieldGenerator {
+    public EmailFieldGenerator() {
+    }
+
     @Override
     public boolean supports(Field field) {
         return field.isAnnotationPresent(Email.class) || field.getName().toLowerCase().contains("email");

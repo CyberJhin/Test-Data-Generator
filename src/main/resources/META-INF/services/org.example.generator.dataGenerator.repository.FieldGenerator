@@ -1,0 +1,13 @@
+org.example.generator.dataGenerator.impl.person.NameFieldGenerator
+org.example.generator.dataGenerator.impl.person.PatronymicFieldGenerator
+org.example.generator.dataGenerator.impl.person.EmailFieldGenerator
+org.example.generator.dataGenerator.impl.address.AddressFieldGenerator
+org.example.generator.dataGenerator.impl.address.CityFieldGenerator
+org.example.generator.dataGenerator.impl.other.AmountFieldGenerator
+org.example.generator.dataGenerator.impl.other.DaysCountFieldGenerator
+org.example.generator.dataGenerator.impl.person.InnFieldGenerator
+org.example.generator.dataGenerator.impl.person.KppFieldGenerator
+org.example.generator.dataGenerator.impl.passport.PassportSeriesFieldGenerator
+org.example.generator.dataGenerator.impl.passport.PassportNumberFieldGenerator
+org.example.generator.dataGenerator.impl.passport.PassportCodeFieldGenerator
+org.example.generator.dataGenerator.impl.DefaultFieldGenerator

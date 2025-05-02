@@ -1,14 +1,16 @@
 package org.example.generator.dataGenerator.impl.person;
 
 import com.github.javafaker.Faker;
+import org.example.ConfigurableGenerator;
 import org.example.config.InvalidDataConfig;
 import org.example.config.InvalidDataType;
+import org.example.generator.GeneratorConfig;
 import org.example.generator.dataGenerator.repository.FieldGenerator;
 
 import java.lang.reflect.Field;
 import java.util.Random;
 
-public class InnFieldGenerator implements FieldGenerator {
+public class InnFieldGenerator implements FieldGenerator, ConfigurableGenerator {
 
     private static final int[] COEF_10 = {2,4,10,3,5,9,4,6,8};
     private static final int[] COEF_11_1 = {7,2,4,10,3,5,9,4,6,8};       // для первой контрольной цифры 12-значного ИНН
@@ -16,10 +18,10 @@ public class InnFieldGenerator implements FieldGenerator {
 
     private static final Random random = new Random();
 
-    private final boolean IPorUL;
+    private boolean IPorUL;
 
-    public InnFieldGenerator(boolean ipOrUL) {
-        this.IPorUL = ipOrUL;
+    public InnFieldGenerator() {
+
     }
     @Override
     public boolean supports(Field field) {
@@ -87,5 +89,10 @@ public class InnFieldGenerator implements FieldGenerator {
             case TOO_LONG -> faker.number().digits(15);
             default -> "0000000000";
         };
+    }
+
+    @Override
+    public void configure(GeneratorConfig config) {
+        this.IPorUL = config.isUseRussianPassport();
     }
 }

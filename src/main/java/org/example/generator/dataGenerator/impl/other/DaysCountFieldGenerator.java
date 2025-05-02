@@ -7,6 +7,9 @@ import org.example.generator.dataGenerator.repository.FieldGenerator;
 import java.lang.reflect.Field;
 
 public class DaysCountFieldGenerator implements FieldGenerator {
+    public DaysCountFieldGenerator() {
+    }
+
     @Override
     public boolean supports(Field field) {
         String name = field.getName().toLowerCase();

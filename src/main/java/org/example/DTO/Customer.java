@@ -8,7 +8,6 @@ import org.example.config.TestListConfig;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.Pattern;
-import java.math.BigDecimal;
 import java.util.List;
 
 @TestDataLocale({"en", "ru"})
@@ -53,12 +52,9 @@ public class Customer {
     private Integer customerId;
 
     @InvalidDataConfig(
-            invalidDataTypes = {InvalidDataType.TOO_SHORT, InvalidDataType.TOO_LONG},
-            minLength = 1,
-            maxLength = 10000000,
-            tags = {"finance"}
+            invalidDataTypes = {InvalidDataType.TOO_SHORT, InvalidDataType.TOO_LONG}
     )
-    private BigDecimal balance;
+    private String INN;
 
     @InvalidDataConfig(
             invalidDataTypes = {}

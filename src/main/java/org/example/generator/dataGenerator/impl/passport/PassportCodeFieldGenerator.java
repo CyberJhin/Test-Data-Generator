@@ -1,17 +1,19 @@
 package org.example.generator.dataGenerator.impl.passport;
 
 import com.github.javafaker.Faker;
+import org.example.ConfigurableGenerator;
 import org.example.config.InvalidDataConfig;
 import org.example.config.InvalidDataType;
+import org.example.generator.GeneratorConfig;
 import org.example.generator.dataGenerator.repository.FieldGenerator;
 
 import java.lang.reflect.Field;
 
-public class PassportCodeFieldGenerator implements FieldGenerator {
-    private final boolean russianFormat;
+public class PassportCodeFieldGenerator implements FieldGenerator, ConfigurableGenerator {
+    private  boolean russianFormat;
 
-    public PassportCodeFieldGenerator(boolean russianFormat) {
-        this.russianFormat = russianFormat;
+    public PassportCodeFieldGenerator( ) {
+
     }
 
     @Override
@@ -34,5 +36,10 @@ public class PassportCodeFieldGenerator implements FieldGenerator {
             case CONTAINS_FORBIDDEN_CHARACTERS -> "@@@-###";
             default -> null;
         };
+    }
+
+    @Override
+    public void configure(GeneratorConfig config) {
+        this.russianFormat = config.isUseRussianPassport();
     }
 }

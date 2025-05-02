@@ -8,6 +8,9 @@ import org.example.generator.dataGenerator.repository.FieldGenerator;
 import java.lang.reflect.Field;
 
 public class KppFieldGenerator implements FieldGenerator {
+    public KppFieldGenerator() {
+    }
+
     @Override
     public boolean supports(Field field) {
         return field.getName().toLowerCase().contains("kpp");

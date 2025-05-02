@@ -6,12 +6,14 @@ import org.example.config.InvalidDataType;
 import org.example.generator.dataGenerator.repository.FieldGenerator;
 
 import java.lang.reflect.Field;
-import java.util.Objects;
 
 /**
  * Генератор поля street (Address.street), поддерживает вложенные и standalone поля.
  */
 public class AddressFieldGenerator implements FieldGenerator {
+    public AddressFieldGenerator() {
+    }
+
     @Override
     public boolean supports(Field field) {
         String fname = field.getName().toLowerCase();

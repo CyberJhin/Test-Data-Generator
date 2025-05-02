@@ -1,19 +1,24 @@
 package org.example.generator.dataGenerator.impl.passport;
 
 import com.github.javafaker.Faker;
+import org.example.ConfigurableGenerator;
 import org.example.config.InvalidDataConfig;
 import org.example.config.InvalidDataType;
+import org.example.generator.GeneratorConfig;
 import org.example.generator.dataGenerator.repository.FieldGenerator;
 
 import java.lang.reflect.Field;
 
-public class PassportSeriesFieldGenerator implements FieldGenerator {
-    private final boolean russianFormat;
+public class PassportSeriesFieldGenerator implements FieldGenerator, ConfigurableGenerator {
+    private  boolean russianFormat;
 
-    public PassportSeriesFieldGenerator(boolean russianFormat) {
-        this.russianFormat = russianFormat;
+    public PassportSeriesFieldGenerator() {
     }
 
+    @Override
+    public void configure(GeneratorConfig config) {
+        this.russianFormat = config.isUseRussianPassport();
+    }
     @Override
     public boolean supports(Field field) {
         String fname = field.getName().toLowerCase();

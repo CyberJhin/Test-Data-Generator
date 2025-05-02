@@ -11,6 +11,9 @@ import java.lang.reflect.Field;
  * Генератор для поля region внутри City или standalone поля region.
  */
 public class CityFieldGenerator implements FieldGenerator {
+    public CityFieldGenerator() {
+    }
+
     @Override
     public boolean supports(Field field) {
         // Поле называется region

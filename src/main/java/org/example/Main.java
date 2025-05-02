@@ -24,7 +24,8 @@ public class Main {
                 // 5) Фиксируем ровно 10 элементов в списке addresses
                 .withFixedListSize(List.of("addresses"), 2)
                 // 6) Генерировать паспорт не по российскому формату
-                .withRussianPassport(false)
+                .withRussianPassport(true)
+                .withInnForUl(true)
                 // 7) Для поля INN (standalone) делаем too_short
                 .invalidate(List.of("inn"), InvalidDataType.TOO_SHORT)
                 .build();

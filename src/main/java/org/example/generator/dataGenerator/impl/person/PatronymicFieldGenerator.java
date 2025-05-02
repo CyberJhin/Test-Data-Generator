@@ -9,6 +9,9 @@ import java.lang.reflect.Field;
 
 /** Генератор отчества (патронимика) */
 public class PatronymicFieldGenerator implements FieldGenerator {
+    public PatronymicFieldGenerator() {
+    }
+
     @Override
     public boolean supports(Field field) {
         String name = field.getName().toLowerCase();

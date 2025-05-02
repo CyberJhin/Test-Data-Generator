@@ -1,29 +1,23 @@
 package org.example.generator;
 
-import com.github.javafaker.Faker;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.javafaker.Faker;
+import org.example.ConfigurableGenerator;
 import org.example.config.InvalidDataConfig;
 import org.example.config.InvalidDataType;
 import org.example.config.InvalidFieldConfig;
 import org.example.config.TestListConfig;
-import org.example.generator.dataGenerator.impl.*;
-import org.example.generator.dataGenerator.impl.address.AddressFieldGenerator;
-import org.example.generator.dataGenerator.impl.address.CityFieldGenerator;
-import org.example.generator.dataGenerator.impl.passport.PassportCodeFieldGenerator;
-import org.example.generator.dataGenerator.impl.passport.PassportNumberFieldGenerator;
-import org.example.generator.dataGenerator.impl.passport.PassportSeriesFieldGenerator;
-import org.example.generator.dataGenerator.impl.person.*;
-import org.example.generator.dataGenerator.impl.other.AmountFieldGenerator;
-import org.example.generator.dataGenerator.impl.other.DaysCountFieldGenerator;
+import org.example.generator.dataGenerator.impl.DefaultFieldGenerator;
 import org.example.generator.dataGenerator.repository.FieldGenerator;
 
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.annotation.ElementType;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * CoreDataGenerator с улучшенной логикой path-selection: поддержка wildcard '*' на любом уровне.
@@ -65,6 +59,7 @@ public class CoreDataGenerator {
         private boolean onlyRequired = false;
         private final Set<String> requiredTags = new HashSet<>();
         private boolean useRussianPassport = false;
+        private boolean useInnForUl = false;
 
         public Builder(Class<T> clazz) {
             this.clazz = clazz;
@@ -92,16 +87,29 @@ public class CoreDataGenerator {
             return this;
         }
         public Builder<T> withRussianPassport(boolean flag) { this.useRussianPassport = flag; return this; }
+        public Builder<T> withInnForUl(boolean flag) { this.useInnForUl = flag; return this; }
 
         public T build() {
-            // Список генераторов
-            List<FieldGenerator> generators = List.of(
-                    new NameFieldGenerator(), new PatronymicFieldGenerator(), new EmailFieldGenerator(),
-                    new AddressFieldGenerator(),  new CityFieldGenerator(),  new AmountFieldGenerator(), new DaysCountFieldGenerator(),
-                    new InnFieldGenerator(true), new KppFieldGenerator(),
-                    new PassportSeriesFieldGenerator(useRussianPassport), new PassportNumberFieldGenerator(useRussianPassport),
-                    new PassportCodeFieldGenerator(useRussianPassport), new DefaultFieldGenerator()
-            );
+            // 1) Собираем глобальный конфиг
+            GeneratorConfig ctx = new GeneratorConfig()
+                    .setUseRussianPassport(useRussianPassport)
+                    .setUseInnForUl(useInnForUl);
+
+            // 2) Загружаем все FieldGenerator через SPI
+            List<FieldGenerator> generators = ServiceLoader
+                    .load(FieldGenerator.class)
+                    .stream()
+                    .map(ServiceLoader.Provider::get)
+                    .collect(Collectors.toList());
+
+            // 3) Конфигурируем тех, кому нужно
+            for (FieldGenerator gen : generators) {
+                if (gen instanceof ConfigurableGenerator cg) {
+                    cg.configure(ctx);
+                }
+            }
+
+            // 4) Вызываем основной метод генерации, передав список generators
             return generateFilteredData(
                     clazz, onlyRequired, requiredTags,
                     new ArrayList<>(), new HashSet<>(),
@@ -173,7 +181,6 @@ public class CoreDataGenerator {
         } catch (Exception e) { throw new RuntimeException(e); }
     }
 
-    @SuppressWarnings("unchecked")
     private static List<Object> generateListField(
             Field field, InvalidDataConfig cfg, TestListConfig listCfg,
             List<String> path, int fixedSize,

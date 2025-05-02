@@ -9,6 +9,9 @@ import javax.validation.constraints.Pattern;
 import java.lang.reflect.Field;
 
 public class NameFieldGenerator implements FieldGenerator {
+    public NameFieldGenerator() {
+    }
+
     @Override
     public boolean supports(Field field) {
         String name = field.getName().toLowerCase();

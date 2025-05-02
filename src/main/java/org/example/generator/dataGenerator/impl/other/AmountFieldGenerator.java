@@ -9,6 +9,9 @@ import java.lang.reflect.Field;
 import java.math.BigDecimal;
 
 public class AmountFieldGenerator implements FieldGenerator {
+    public AmountFieldGenerator() {
+    }
+
     @Override
     public boolean supports(Field field) {
         String name = field.getName().toLowerCase();
