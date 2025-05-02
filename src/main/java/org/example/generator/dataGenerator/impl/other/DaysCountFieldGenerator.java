@@ -1,4 +1,4 @@
-package org.example.generator.dataGenerator.impl;
+package org.example.generator.dataGenerator.impl.other;
 import com.github.javafaker.Faker;
 import org.example.config.InvalidDataConfig;
 import org.example.config.InvalidDataType;

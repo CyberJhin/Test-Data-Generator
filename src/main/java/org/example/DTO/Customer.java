@@ -67,9 +67,7 @@ public class Customer {
 
 
     @InvalidDataConfig(
-            invalidDataTypes = {InvalidDataType.TOO_SHORT, InvalidDataType.TOO_LONG},
-            minLength = 1,
-            maxLength = 10000000
+            invalidDataTypes = {}
     )
-    private String INN;
+    private Test testObject;
 }

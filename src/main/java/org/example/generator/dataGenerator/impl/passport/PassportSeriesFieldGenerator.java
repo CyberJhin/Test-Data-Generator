@@ -1,4 +1,4 @@
-package org.example.generator.dataGenerator.impl;
+package org.example.generator.dataGenerator.impl.passport;
 
 import com.github.javafaker.Faker;
 import org.example.config.InvalidDataConfig;
@@ -7,10 +7,10 @@ import org.example.generator.dataGenerator.repository.FieldGenerator;
 
 import java.lang.reflect.Field;
 
-public class PassportCodeFieldGenerator implements FieldGenerator {
+public class PassportSeriesFieldGenerator implements FieldGenerator {
     private final boolean russianFormat;
 
-    public PassportCodeFieldGenerator(boolean russianFormat) {
+    public PassportSeriesFieldGenerator(boolean russianFormat) {
         this.russianFormat = russianFormat;
     }
 
@@ -18,20 +18,22 @@ public class PassportCodeFieldGenerator implements FieldGenerator {
     public boolean supports(Field field) {
         String fname = field.getName().toLowerCase();
         String cls = field.getDeclaringClass().getSimpleName().toLowerCase();
-        return (fname.contains("code") && (cls.contains("passport") || fname.contains("passport")));
+        // Подходит, если это nested Passport.series или поле типа passportSeries, russianPassport etc.
+        return (fname.contains("series") && (cls.contains("passport") || fname.contains("passport")));
     }
+
 
     @Override
     public Object generateValid(Field field, Faker faker, InvalidDataConfig cfg) {
-        return russianFormat ? faker.regexify("\\d{3}-\\d{3}") : faker.bothify("??-??-###");
+        return russianFormat ? faker.regexify("\\d{4}") : faker.bothify("??-###");
     }
 
     @Override
     public Object generateInvalid(Field field, InvalidDataConfig cfg, InvalidDataType type, Faker faker) {
         return switch (type) {
-            case TOO_SHORT -> "123";
-            case TOO_LONG -> "123-456-789-000";
-            case CONTAINS_FORBIDDEN_CHARACTERS -> "@@@-###";
+            case TOO_SHORT -> russianFormat ? faker.regexify("\\d{2}") : "1";
+            case TOO_LONG -> russianFormat ? faker.regexify("\\d{6}") : "LONGSERIES123";
+            case CONTAINS_FORBIDDEN_CHARACTERS -> "ABCD";
             default -> null;
         };
     }

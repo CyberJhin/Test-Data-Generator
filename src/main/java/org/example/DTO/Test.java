@@ -5,7 +5,7 @@ import org.example.config.InvalidDataConfig;
 import org.example.config.InvalidDataType;
 
 @Data
-public class City {
+public class Test {
 
     @InvalidDataConfig(
             invalidDataTypes = {InvalidDataType.TOO_SHORT, InvalidDataType.TOO_LONG},
@@ -13,5 +13,5 @@ public class City {
             maxLength = 100,
             tags = {"basic"}
     )
-    private String city;
+    private String testAtribute;
 }

@@ -1,4 +1,4 @@
-package org.example.generator.dataGenerator.impl;
+package org.example.generator.dataGenerator.impl.passport;
 
 import com.github.javafaker.Faker;
 import org.example.config.InvalidDataConfig;
@@ -7,32 +7,31 @@ import org.example.generator.dataGenerator.repository.FieldGenerator;
 
 import java.lang.reflect.Field;
 
-public class PassportNumberFieldGenerator implements FieldGenerator {
+public class PassportCodeFieldGenerator implements FieldGenerator {
     private final boolean russianFormat;
 
-    public PassportNumberFieldGenerator(boolean russianFormat) {
+    public PassportCodeFieldGenerator(boolean russianFormat) {
         this.russianFormat = russianFormat;
     }
-
 
     @Override
     public boolean supports(Field field) {
         String fname = field.getName().toLowerCase();
         String cls = field.getDeclaringClass().getSimpleName().toLowerCase();
-        return (fname.contains("number") && (cls.contains("passport") || fname.contains("passport")));
+        return (fname.contains("code") && (cls.contains("passport") || fname.contains("passport")));
     }
 
     @Override
     public Object generateValid(Field field, Faker faker, InvalidDataConfig cfg) {
-        return russianFormat ? faker.regexify("\\d{6}") : faker.bothify("########");
+        return russianFormat ? faker.regexify("\\d{3}-\\d{3}") : faker.bothify("??-??-###");
     }
 
     @Override
     public Object generateInvalid(Field field, InvalidDataConfig cfg, InvalidDataType type, Faker faker) {
         return switch (type) {
-            case TOO_SHORT -> russianFormat ? faker.regexify("\\d{2}") : "123";
-            case TOO_LONG -> russianFormat ? faker.regexify("\\d{10}") : "123456789012";
-            case CONTAINS_FORBIDDEN_CHARACTERS -> "NUMB!@#";
+            case TOO_SHORT -> "123";
+            case TOO_LONG -> "123-456-789-000";
+            case CONTAINS_FORBIDDEN_CHARACTERS -> "@@@-###";
             default -> null;
         };
     }

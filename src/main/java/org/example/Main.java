@@ -13,17 +13,20 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) {
         Customer customer = CoreDataGenerator.builder(Customer.class)
-                // 2) Принудительно ставим локаль для всего объекта
+                // 1) Принудительно ставим локаль для всего объекта
                 .withLocale("ru")
-                // 3) Для конкретного поля — город во втором адресе сделаем на en
+                // 2) Для всех элементов списка addresses — для поля city ставим en
                 .setFieldLocale(List.of("addresses", "[1]", "city"), "en")
-                // Добавляем пару невалидных полей
+                // 3) Делаем firstName явно слишком коротким
                 .invalidate(List.of("firstName"), InvalidDataType.TOO_SHORT)
-                .invalidateListItemAtIndex(List.of("addresses", "street"), 2, InvalidDataType.CONTAINS_FORBIDDEN_CHARACTERS)
-                // Фиксируем ровно 3 адреса
-                .withFixedListSize(List.of("addresses"), 1)
-                .withNotRussianPassport() // отключаем российский формат
-                .withINNforUL()
+                // 4) Для любого адреса делаем поле street с forbidden chars
+                .invalidate(List.of("addresses", "*", "street"), InvalidDataType.CONTAINS_FORBIDDEN_CHARACTERS)
+                // 5) Фиксируем ровно 10 элементов в списке addresses
+                .withFixedListSize(List.of("addresses"), 2)
+                // 6) Генерировать паспорт не по российскому формату
+                .withRussianPassport(false)
+                // 7) Для поля INN (standalone) делаем too_short
+                .invalidate(List.of("inn"), InvalidDataType.TOO_SHORT)
                 .build();
 
         // Печатаем результат
