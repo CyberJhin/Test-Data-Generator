@@ -1,15 +1,19 @@
 # Test Data Generator
 
 ## Описание проекта
+
 **Test Data Generator** — это инструмент для генерации тестовых данных. Он поддерживает гибкие стратегии, работу с локалями, а также позволяет настраивать форматы и условия генерации данных. Проект идеально подходит для автоматизации тестирования, создания мок-объектов и проверки систем на устойчивость к невалидным данным.
 
+---
+
 ## Возможности
+
 - **Генерация пользовательских данных**:
     - Поддержка локалей (`ru`, `en`, и др.).
     - Фиксированный размер списков.
     - Генерация валидных и невалидных данных по заданным правилам.
 - **Работа с аннотациями**:
-    - Задание локалей на уровне класса.
+    - Задание локалей на уровне класса с помощью `@TestDataLocale`.
     - Настройка правил валидации через `@InvalidDataConfig`.
     - Управление размерами коллекций с помощью `@TestListConfig`.
 - **Расширяемость**:
@@ -56,6 +60,7 @@ private List<Address> addresses;
 
 ## Пример использования
 
+### Пример генерации данных
 ```java
 Customer customer = CoreDataGenerator.builder(Customer.class)
     .withLocale("ru")
@@ -72,10 +77,36 @@ System.out.println(CoreDataGenerator.toJson(customer));
 
 ---
 
+## Интеграция с тестовыми фреймворками
+
+### JUnit 5
+Для интеграции с JUnit 5 используется аннотация `@GenerateTestData` и расширение `TestDataExtension`:
+```java
+@ExtendWith(TestDataExtension.class)
+class CustomerTest {
+
+    @Test
+    void testWithInvalidPassport(
+            @GenerateTestData(
+                    value = Customer.class,
+                    useRussianPassport = true,
+                    locale = "ru",
+                    useInnForUl = true,
+                    invalidate = {
+                            @FieldInvalidation(path = {"passport", "number"}, type = "TOO_SHORT")
+                    }
+            ) Customer customer
+    ) {
+        System.out.println(CoreDataGenerator.toJson(customer));
+    }
+}
+```
+
+---
+
 ## Как добавить собственный генератор
 
 1. **Создайте класс, реализующий `FieldGenerator`:**
-
 ```java
 public class CustomFieldGenerator implements FieldGenerator {
     @Override
@@ -96,7 +127,6 @@ public class CustomFieldGenerator implements FieldGenerator {
 ```
 
 2. **(Опционально) Реализуйте интерфейс `ConfigurableGenerator`, если требуется доступ к глобальной конфигурации:**
-
 ```java
 public class CustomFieldGenerator implements FieldGenerator, ConfigurableGenerator {
     private boolean myFlag;
@@ -105,49 +135,14 @@ public class CustomFieldGenerator implements FieldGenerator, ConfigurableGenerat
     public void configure(GeneratorConfig config) {
         this.myFlag = config.isUseSomethingSpecial();
     }
-
-    // остальная реализация...
-}
-```
-Затем добавьте вызов реализованных конфигураторов, он автоматически проставит значения и соберет все генераторы:
-```java 
-       public T build() {
-  // 1) Собираем глобальный конфиг
-  GeneratorConfig ctx = new GeneratorConfig()
-          .setUseRussianPassport(useRussianPassport)
-          .setUseInnForUl(useInnForUl);
-
-  // 2) Загружаем все FieldGenerator через SPI
-  List<FieldGenerator> generators = ServiceLoader
-          .load(FieldGenerator.class)
-          .stream()
-          .map(ServiceLoader.Provider::get)
-          .collect(Collectors.toList());
-
-  // 3) Конфигурируем тех, кому нужно
-  for (FieldGenerator gen : generators) {
-    if (gen instanceof ConfigurableGenerator cg) {
-      cg.configure(ctx);
-    }
-  }
-
-  // 4) Вызываем основной метод генерации, передав список generators
-  return generateFilteredData(
-          clazz, onlyRequired, requiredTags,
-          new ArrayList<>(), new HashSet<>(),
-          invalidPatterns, fixedSizes, fieldLocales,
-          dtoLocale, new HashMap<>(), generators
-  );
 }
 ```
 
 3. **Зарегистрируйте генератор через SPI:**
-
-Создайте файл:
+   Создайте файл:
 ```
 src/main/resources/META-INF/services/org.example.generator.dataGenerator.repository.FieldGenerator
 ```
-
 Добавьте в него FQCN вашего генератора:
 ```
 org.example.generator.dataGenerator.impl.CustomFieldGenerator
@@ -160,7 +155,6 @@ org.example.generator.dataGenerator.impl.CustomFieldGenerator
 ## Установка и сборка
 
 ### Зависимости (Gradle)
-
 ```gradle
 dependencies {
     implementation 'com.github.javafaker:javafaker:1.0.2'
@@ -170,7 +164,6 @@ dependencies {
 ```
 
 ### Сборка проекта
-
 ```bash
 ./gradlew build
 ```
