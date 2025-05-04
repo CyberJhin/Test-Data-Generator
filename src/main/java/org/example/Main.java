@@ -12,25 +12,14 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        Customer customer = CoreDataGenerator.builder(Customer.class)
-                // 1) Принудительно ставим локаль для всего объекта
+        List<Customer> customers = CoreDataGenerator.builder(Customer.class)
                 .withLocale("ru")
-                // 2) Для всех элементов списка addresses — для поля city ставим en
-                .setFieldLocale(List.of("addresses", "[1]", "city"), "en")
-                // 3) Делаем firstName явно слишком коротким
-                .invalidate(List.of("firstName"), InvalidDataType.TOO_SHORT)
-                // 4) Для любого адреса делаем поле street с forbidden chars
-                .invalidate(List.of("addresses", "*", "street"), InvalidDataType.CONTAINS_FORBIDDEN_CHARACTERS)
-                // 5) Фиксируем ровно 10 элементов в списке addresses
-                .withFixedListSize(List.of("addresses"), 2)
-                // 6) Генерировать паспорт не по российскому формату
-                .withRussianPassport(true)
-                .withInnForUl(true)
-                // 7) Для поля INN (standalone) делаем too_short
-                .invalidate(List.of("inn"), InvalidDataType.TOO_SHORT)
-                .build();
+                .invalidate(Path.of("addresses", "*", "street"), InvalidDataType.CONTAINS_FORBIDDEN_CHARACTERS)
+                .setValue(Path.of("addresses", "[1]", "city", "city"), "Moscow")
+                .withFixedListSize(Path.of("addresses"), 2)
+                .buildList(5);
 
         // Печатаем результат
-        System.out.println(CoreDataGenerator.toJson(customer));
+        System.out.println(CoreDataGenerator.toJson(customers));
     }
 }
