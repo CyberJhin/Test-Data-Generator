@@ -93,6 +93,6 @@ public class InnFieldGenerator implements FieldGenerator, ConfigurableGenerator 
 
     @Override
     public void configure(GeneratorConfig config) {
-        this.IPorUL = config.isUseRussianPassport();
+        this.IPorUL = config.isUseInnForUl();
     }
 }
