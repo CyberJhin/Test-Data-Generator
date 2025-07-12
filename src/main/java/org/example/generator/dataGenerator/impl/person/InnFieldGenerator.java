@@ -18,7 +18,11 @@ public class InnFieldGenerator implements FieldGenerator, ConfigurableGenerator 
 
     private static final Random random = new Random();
 
-    private boolean IPorUL;
+    /**
+     * If {@code true}, generate INN for legal entities (10 digits);
+     * otherwise generate individual INN (12 digits).
+     */
+    private boolean innForUl;
 
     public InnFieldGenerator() {
 
@@ -30,7 +34,7 @@ public class InnFieldGenerator implements FieldGenerator, ConfigurableGenerator 
 
     @Override
     public Object generateValid(Field field, Faker faker, InvalidDataConfig cfg) {
-        return   IPorUL ? generateInn10() : generateInn12();
+        return innForUl ? generateInn10() : generateInn12();
     }
 
     public static String generateInn10() {
@@ -93,6 +97,6 @@ public class InnFieldGenerator implements FieldGenerator, ConfigurableGenerator 
 
     @Override
     public void configure(GeneratorConfig config) {
-        this.IPorUL = config.isUseInnForUl();
+        this.innForUl = config.isUseInnForUl();
     }
 }
